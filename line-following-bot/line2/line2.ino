@@ -92,22 +92,22 @@ void FF(){
 
 void FR(){
   ao(); delay(50);
-  sr(30); delay(200);
+  sr(SPEED); delay(500);
   read_sensor();
   while(C > C_REF){
     read_sensor();
-    sr(30);
+    sr(SPEED);
   }
   ao();
 }
 
 void FL(){
   ao(); delay(50);
-  sl(30); delay(200);
+  sl(SPEED); delay(500);
   read_sensor();
   while(C > C_REF){
     read_sensor();
-    sl(30);
+    sl(SPEED);
   }
   ao();
 }
@@ -191,7 +191,7 @@ void setup() {
 
 void loop() {
 
-  FF(); FL(); while(1);
+  KEEP(); UP(); FF(); FL(); FF(); FL();FF();  while(1);
   
   
   
