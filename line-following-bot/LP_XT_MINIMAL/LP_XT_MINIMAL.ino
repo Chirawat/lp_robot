@@ -10,8 +10,6 @@ int     L2_REF= 546;
 int     R2_REF=640;
 
 Servo             udServo, gripperServo; 
-StaticJsonBuffer  <200> jsonBuffer;
-JsonObject& root = jsonBuffer.createObject();
 int       ADIR = 7;
 int       PWMA = 6;
 int       BDIR = 3;
@@ -134,23 +132,6 @@ double read_sensor(){
   Serial.print(R_avg); Serial.print("\t");
   Serial.print(R2_avg); Serial.print("\r\n");
   */
- 
-  /*
-  root["time"]=millis();
-  root["l2_ref"]=L2_REF;
-  root["l2"]=L2;
-  root["l_ref"]=L_REF;
-  root["l"]=L;
-  root["r_ref"]=R_REF;
-  root["r"]=R;
-  root["r2_ref"]=R2_REF;
-  root["r2"]=R;
-  root["error"]=error;
-  //root.printTo(Serial);
-  Serial.print(",");
-  */
-  
-
   return error;
 }
 
@@ -174,32 +155,34 @@ void FF(){
     follow_line();
   }
   fd(SPEED_t);
-  delay(50);
+  delay(100);
   ao();
   beep();
 }
 
-//void FR(){
-//  ao(); delay(50);
-//  sr(SPEED_t); delay(300);
-//  read_sensor();
-//  while(C > C_REF){
-//    read_sensor();
-//    sr(SPEED_t);
-//  }
-//  ao();
-//}
+void FR(){
+  read_sensor();
+  while(L2 > L2_REF && R2 > R2_REF){
+    read_sensor();
+    follow_line();
+  }
+  fd(SPEED_t);  delay(120);
+  ao(); beep(); delay(1000); 
+  sr(SPEED_t);  delay(300);
+  ao(); beep();
+}
 
-//void FL(){
-//  ao(); delay(50);
-//  sl(SPEED_t-10); delay(300);
-//  read_sensor();
-//  while(C > C_REF){
-//    read_sensor();
-//    sl(SPEED_t-10);
-//  }
-//  ao();
-//}
+void FL(){
+  read_sensor();
+  while(L2 > L2_REF && R2 > R2_REF){
+    read_sensor();
+    follow_line();
+  }
+  fd(SPEED_t);  delay(120);
+  ao(); beep(); delay(1000); 
+  sl(SPEED_t);  delay(300);
+  ao(); beep();
+}
 
 int read_distance(){
   int distance;
@@ -277,16 +260,14 @@ void setup() {
 
   Serial.println("Press key to start...");
   sw_ok_press();
+  
   Serial.println("Started");
-  udServo.write(90);
+  udServo.write(80);
   gripperServo.write(30); 
-  
-  
-
 }
 
 void loop() {
   //read_sensor(); delay(500);
-  FF();
+  FR(); FF(); FL();
   while(1);
 }
