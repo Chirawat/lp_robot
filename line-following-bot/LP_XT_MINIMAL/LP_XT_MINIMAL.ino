@@ -1,13 +1,16 @@
 #include <Servo.h>
 #include <ArduinoJson.h>
 #define READ_SENSOR
-int     SPEED_t=60;
+int     SPEED_t=100;
 
 /* REFERENCES */
-int     L_REF=597;
-int     R_REF=547;
-int     L2_REF= 546;
-int     R2_REF=640;
+int     L2_REF=552;
+//int     L_REF=539;
+//int     R_REF=556;
+int     R2_REF=550;
+
+int     L_REF=550;
+int     R_REF=550;
 
 Servo             udServo, gripperServo; 
 int       ADIR = 7;
@@ -39,31 +42,31 @@ void ao(){
   analogWrite(PWMB, 0);
 }
 
-void fd(int speed){
+void fd(int L_Speed, int R_Speed){
   //direction
   digitalWrite(ADIR, LOW);
   digitalWrite(BDIR, LOW);
   // speed
-  analogWrite(PWMA, map(speed, 0, 100, 0, 255));
-  analogWrite(PWMB, map(speed, 0, 100, 0, 255));
+  analogWrite(PWMA, map(R_Speed, 0, 100, 0, 255));
+  analogWrite(PWMB, map(L_Speed, 0, 100, 0, 255));
 }
 
-void sl(int speed){
+void sl(int L_Speed, int R_Speed){
   //direction
   digitalWrite(ADIR, HIGH);
   digitalWrite(BDIR, LOW);
   // speed
-  analogWrite(PWMA, map(speed, 0, 100, 0, 255));
-  analogWrite(PWMB, map(speed, 0, 100, 0, 255));
+  analogWrite(PWMA, map(L_Speed, 0, 100, 0, 255));
+  analogWrite(PWMB, map(R_Speed, 0, 100, 0, 255));
 }
 
-void sr(int speed){
+void sr(int L_Speed, int R_Speed){
   //direction
   digitalWrite(ADIR, LOW);
   digitalWrite(BDIR, HIGH);
   // speed
-  analogWrite(PWMA, map(speed, 0, 100, 0, 255));
-  analogWrite(PWMB, map(speed, 0, 100, 0, 255));
+  analogWrite(PWMA, map(L_Speed, 0, 100, 0, 255));
+  analogWrite(PWMB, map(R_Speed, 0, 100, 0, 255));
 }
 
 void bk(int speed){
@@ -138,13 +141,14 @@ double read_sensor(){
 void follow_line(){
   int error_t = read_sensor();
   if(error_t > 0){
-    sl(SPEED_t-30);
+    fd(SPEED_t, SPEED_t-40);
   }
   else if(error_t < 0){
-    sr(SPEED_t-30);
+    //sr(SPEED_t,0);
+    fd(SPEED_t-40, SPEED_t);
   }
   else{
-    fd(SPEED_t);
+    fd(SPEED_t, SPEED_t);
   }
 }
 
@@ -154,7 +158,7 @@ void FF(){
     read_sensor();
     follow_line();
   }
-  fd(SPEED_t);
+  //fd(SPEED_t);
   delay(100);
   ao();
   beep();
@@ -166,9 +170,9 @@ void FR(){
     read_sensor();
     follow_line();
   }
-  fd(SPEED_t);  delay(120);
+  //fd(SPEED_t);  delay(120);
   ao(); beep(); delay(1000); 
-  sr(SPEED_t);  delay(300);
+  sr(SPEED_t, SPEED_t);  delay(300);
   ao(); beep();
 }
 
@@ -178,9 +182,9 @@ void FL(){
     read_sensor();
     follow_line();
   }
-  fd(SPEED_t);  delay(120);
+  //fd(SPEED_t);  delay(120);
   ao(); beep(); delay(1000); 
-  sl(SPEED_t);  delay(300);
+  sl(SPEED_t, SPEED_t);  delay(300);
   ao(); beep();
 }
 
@@ -267,7 +271,15 @@ void setup() {
 }
 
 void loop() {
-  //read_sensor(); delay(500);
-  FR(); FF(); FL();
-  while(1);
+  follow_line();
+
+/*  
+read_sensor();
+delay(200);
+clearAndHome();
+*/  
+//  read_sensor(); delay(500);
+  //FL(); FL(); FF();
+  //fd(50);
+  //while(1);
 }
